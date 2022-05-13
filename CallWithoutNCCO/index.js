@@ -117,10 +117,7 @@ const rtcEvent = async (event, { logger, csClient }) => {
             const legId = event.body.channel.id
             let textSpeech
             if (!event.body.asr.results) {
-                textSpeech = "Opps!!! Sorry we did not understand!! Try again later, Bye Bye"
-                handup(csClient,legId)
-                return
-
+                textSpeech = "Opps!!! Sorry I did not understand!! Try again, I am listening."
             }
             const results = event.body.asr.results
             for (i = 0; i < results.length; i++) {
@@ -129,15 +126,13 @@ const rtcEvent = async (event, { logger, csClient }) => {
                     return
                 }
             }
-            textSpeech = `You said: ${results[0].word}, Please Just say stop to stop this cycle`
+            textSpeech = `You said: ${results[0].word}, I am still listening, say STOP to stop.`
             await csClient({
                 url: `${DATACENTER}/v0.3/legs/${legId}/talk`,
                 method: "post",
                 data: { "loop": 1, "text": textSpeech, "level": 0, "voice_name": "Kimberly" },
             })
-        } else if (type == 'audio:say:done'){ /* the text to speech is finished */
-            /* we hangup the call */
-            console.log("\n\n\n audio:say:done is: \n",event,"\n\n\n")
+        } else if (type == 'audio:say:done'){ 
             const legId = event.body.channel.id
             const conversation_id = event.conversation_id
             await csClient({
@@ -167,9 +162,9 @@ const rtcEvent = async (event, { logger, csClient }) => {
 
 const handup = async (csClient, legId) => {
     await csClient({
-        url: `${DATACENTER}/v0.1/legs/${legId}`,
+        url: `${DATACENTER}/v0.3/legs/${legId}`,
         method: "put",
-        body: {
+        data: {
             "action": "hangup"
           }
     })
