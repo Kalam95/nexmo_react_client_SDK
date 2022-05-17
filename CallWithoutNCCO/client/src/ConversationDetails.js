@@ -11,7 +11,7 @@ export default function Conversation(props) {
 
     const messageReceived = (event) => {
         console.log("event received: ", event)
-        let messageList = this.messages
+        let messageList = messages
         console.log("current list is",messages)
         messageList.push({ user: event._embedded.from_user, body: event.body })
         setMessages(messageList)
