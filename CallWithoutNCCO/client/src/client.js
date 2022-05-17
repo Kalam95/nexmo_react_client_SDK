@@ -18,6 +18,7 @@ export default function startClient() {
     let onEventCallbacks = []
     let onRequestStartCallbacks = []
     let onRequestEndCallbacks = []
+    let messageCallback = null
 
     const onEvent = (callback) => {
         const id = "32432431e3d32rd"//uuidv4()
@@ -43,6 +44,10 @@ export default function startClient() {
             callback
         })
         return id
+    }
+
+    const onMessage = (callback) => {
+        messageCallback = callback;
     }
 
     const getSessionData = () => sessionData
@@ -124,6 +129,14 @@ export default function startClient() {
 
             })
 
+            cleint.on('message', function (packet) {
+                messageCallback(packet);
+            })
+
+            cleint.on('text', function (packet) {
+                messageCallback(packet);
+            })
+
             const loginData = {
                 "device_id": "666666666666666", // TODO: use https://github.com/Valve/fingerprintjs2
                 "device_type": "js",
@@ -155,6 +168,7 @@ export default function startClient() {
         getSessionData,
         onEvent,
         onRequestStart,
-        onRequestEnd
+        onRequestEnd,
+        onMessage
     }
 }

@@ -1,5 +1,6 @@
 import startClient from './client';
 import React, { useState, useEffect } from 'react';
+import Conversation from './ConversationDetails';
 
 const csClient = startClient()
 
@@ -23,7 +24,7 @@ function useCSClientEvents(csClient) {
 function LoginPage(props) {
     const [conversationStatus, setConversationStatus] = useState(null)
     const [conversationList, setConversationList] = useState(null)
-
+    const [id, setid] = useState(null)
     const [eventsHistory, setEvents] = useState([])
     const lastCSClientEvent = useCSClientEvents(csClient)
 
@@ -84,16 +85,29 @@ function LoginPage(props) {
     }
 
     const SimpleList = () => (
-        <ul>
-            {conversationList.map(item => {
-                return <li key={item.id}>{item.name}</li>;
-            })}
-        </ul>
+        conversationList.map((item, index) => {
+            console.log("selected data is: ", index, item)
+            return <List key={index} index={index} item={item} handler={onClick} />;
+        })
     );
+
+    const onClick = (data) => {
+        setid(data)
+    }
 
     const onCleanHistoryClick = async () => {
         setEvents(() => [])
     }
+
+    const List = ({ index, item, handler }) => {
+        return (
+            <div key={index}>
+                <div key={item.id} id={item.id} onClick={()=>{
+                    handler({id: item.id, index: index})
+                }}>{item.name}</div>
+            </div>
+        );
+    };
 
     const EventTitle = ({ event, style }) => {
         let text = 'unknown'
@@ -104,13 +118,14 @@ function LoginPage(props) {
         } else if (event.type && event.body) {
             text = '<- ws event'
         }
-    
-    
+
+
         return (<h3 style={style} >{text}</h3>)
     }
 
-    return (
-        <div className="App">
+    const conversationListPage = () => {
+        return(
+            <div>
             <form onSubmit={onSubmit}>
                 <h2>Create conversation</h2>
                 <label>Enter name for the conversation: </label>
@@ -142,6 +157,16 @@ function LoginPage(props) {
                     </div>
                 )
             })}
+            </div>
+        )
+    }
+    return (
+        <div className="App">
+            {id && <button onClick={() => {
+                onClick(null)
+            }}>Go Back</button>}
+            {id && <Conversation conversation_id={id.id} csClient={csClient} user={props.loginInfo.user} member_id={conversationList[id.index]._embedded.member.id}></Conversation>}
+            {!id && conversationListPage()}
         </div>
     );
 };
