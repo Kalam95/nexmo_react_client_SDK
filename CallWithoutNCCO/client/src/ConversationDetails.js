@@ -9,13 +9,21 @@ export default function Conversation(props) {
     const [messages, setMessages] = useState([])
     const [members, setMembers] = useState([])
 
+    let currentMessageState = React.useRef(null);
+
     const messageReceived = (event) => {
         console.log("event received: ", event)
-        let messageList = messages
-        console.log("current list is",messages)
-        messageList.push({ user: event._embedded.from_user, body: event.body })
-        setMessages(messageList)
+        currentMessageState.current({ user: event._embedded.from_user, body: event.body })
     }
+
+    useEffect(() => {
+        currentMessageState.current = (data) => {
+            console.log("handletablerowclick journalItems", data, messages)
+            // Find the clicked row from all the rows
+            let journalItem = messages.concat([data])
+            setMessages(journalItem)
+        }
+    }, [messages])
 
     useEffect(() => {
         csClient.onMessage(messageReceived);
